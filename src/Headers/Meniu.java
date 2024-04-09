@@ -50,8 +50,8 @@ public class Meniu {
                         }
                     } else {
                         System.out.println();
-                        System.out.println("introduceti orice tasta X pentru va intoarce la meniul de autentificare");
-                        System.out.println("introduceti orice alta tasta pentru a reintroduce datele");
+                        System.out.println("Introduceti orice tasta X pentru va intoarce la meniul de autentificare");
+                        System.out.println("Introduceti orice alta tasta pentru a reintroduce datele");
                         ch = scanner.next().charAt(0);
                         scanner.nextLine();
                         if (ch == 'X' || ch == 'x') break;
@@ -96,7 +96,7 @@ public class Meniu {
 
     public void meniuUser(User us) {
         while(true) {
-            System.out.println("Pentru a adauga o cauta o productie media introduceti tasta C");
+            System.out.println("Pentru a cauta o productie media introduceti tasta C");
             System.out.println("Pentru a afisa detaliile unei productii media introduceti tast D");
             System.out.println("Pentru a adauga un review sau al actualiza pe cel vechi introduceti tasta R");
             System.out.println("Pentru a sterge un review introduceti tasta S");
@@ -319,8 +319,6 @@ public class Meniu {
 
     public Chapter readChapter() {
         String name = readNameMedia();
-//        System.out.println("Intoduceti durata episodului: ");
-//        int ln = scanner.nextInt();
         System.out.println();
         return new Chapter(name);
     }

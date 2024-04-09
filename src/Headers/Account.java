@@ -2,7 +2,7 @@ package Headers;
 
 import java.util.HashMap;
 import java.util.Map;
-public class Account {
+public abstract class Account {
     protected String name;
     private String password;
     protected static Map<String, Account> usedNames = new HashMap<>();

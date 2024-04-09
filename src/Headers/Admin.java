@@ -8,12 +8,8 @@ public class Admin extends Account{
     }
 
     public static Admin getInstance() {
-        if (instance == null) {
-            synchronized (Admin.class) {
-                if (instance == null) {
-                    instance = new Admin();
-                }
-            }
+        if(instance == null) {
+            instance = new Admin();
         }
         return instance;
     }
@@ -30,8 +26,4 @@ public class Admin extends Account{
         return new Novel(nume, author);
     }
 
-    public void addEpisode(String name, int duration, int idAnime) {
-        Episode ep = new Episode(name, duration);
-
-    }
 }
