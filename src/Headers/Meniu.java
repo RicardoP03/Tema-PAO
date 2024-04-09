@@ -13,11 +13,7 @@ public class Meniu {
 
     public static Meniu getInstance() {
         if (instance == null) {
-            synchronized (Meniu.class) {
-                if (instance == null) {
-                    instance = new Meniu();
-                }
-            }
+            instance = new Meniu();
         }
         return instance;
     }

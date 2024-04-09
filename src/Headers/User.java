@@ -6,8 +6,8 @@ import java.util.List;
 import java.util.Map;
 
 public class User extends Account{
-    protected static Map<Media, Integer> reviews = new HashMap<>();
-    protected static List<Media> watchlist = new ArrayList<>();
+    protected Map<Media, Integer> reviews = new HashMap<>();
+    protected List<Media> watchlist = new ArrayList<>();
     private User(String name, String password) {
         super(name, password);
         usedNames.put(name, this);
