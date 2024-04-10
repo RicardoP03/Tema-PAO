@@ -1,4 +1,3 @@
-package Headers;
 import Meniu.*;
 
 public class Main {
