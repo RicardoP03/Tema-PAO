@@ -1,11 +1,13 @@
-package Headers;
+package Account;
+
+import Media.*;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class User extends Account{
+public class User extends Account {
     protected Map<Media, Integer> reviews = new HashMap<>();
     protected List<Media> watchlist = new ArrayList<>();
     private User(String name, String password) {

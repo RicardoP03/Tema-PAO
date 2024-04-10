@@ -1,9 +1,9 @@
-package Headers;
+package Media;
 
 import java.util.List;
 import java.util.ArrayList;
 import java.util.Iterator;
-public class Novel extends Media{
+public class Novel extends Media {
     private String author;
     private Integer nrPages = 0;
     private List<Volume> volumes = new ArrayList<>();

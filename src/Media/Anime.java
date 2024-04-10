@@ -1,10 +1,9 @@
-package Headers;
+package Media;
 
-import java.awt.image.ImageProducer;
 import java.util.List;
 import java.util.ArrayList;
 import java.util.Iterator;
-public class Anime extends Media{
+public class Anime extends Media {
     private int duration = 0;
     private List<Episode> episodes = new ArrayList<>();
     public Anime(String name) {

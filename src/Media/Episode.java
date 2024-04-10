@@ -1,4 +1,4 @@
-package Headers;
+package Media;
 
 public class Episode {
     private String name;

@@ -1,4 +1,4 @@
-package Headers;
+package Media;
 
 public class Chapter {
     private String name;

@@ -1,6 +1,8 @@
-package Headers;
+package Account;
 
-public class Admin extends Account{
+import Media.*;
+
+public class Admin extends Account {
     private static Admin instance;
     private Admin() {
         super("ADMIN", "AdminSecretPa55");

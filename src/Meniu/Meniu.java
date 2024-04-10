@@ -1,4 +1,8 @@
-package Headers;
+package Meniu;
+
+import Account.*;
+import Media.*;
+
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Scanner;
@@ -341,7 +345,7 @@ public class Meniu {
             }
         }
 
-        if(ac instanceof  Admin) {
+        if(ac instanceof Admin) {
             if (md instanceof Anime) {
                 System.out.println(md);
                 System.out.println("Pentru a adauga un episod introduceti tasta A");

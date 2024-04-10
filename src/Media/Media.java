@@ -1,4 +1,4 @@
-package Headers;
+package Media;
 
 import java.util.HashMap;
 import java.util.Map;
