@@ -1,42 +1,43 @@
 package Media;
 
+import Servicess.CRUD;
+
+import java.sql.ResultSet;
 import java.util.List;
 import java.util.ArrayList;
 import java.util.Iterator;
+import Servicess.*;
 public class Novel extends Media {
+    int id;
     private String author;
     private Integer nrPages = 0;
-    private List<Volume> volumes = new ArrayList<>();
     public Novel(String name, String author) {
-        super(name);
+        super(name, "novel");
         this.author = author;
-        productions.put(id, this);
+        this.id = super.id;
+
         System.out.println("Romanul a fost creat");
     }
 
-    public void addVolume(Volume vl) {
-        volumes.add(vl);
-        nrPages += vl.getPages();
-        System.out.println("Volumul a fost adaugat la acest roman.");
+    private Novel(Media md, String Author, int nrPages) {
+        super(md);
+        this.id = super.getId();
+        this.author = Author;
+        this.nrPages = nrPages;
     }
 
-    public void removeVolume(int id) {
-        Iterator<Volume> it = volumes.iterator();
-        while(it.hasNext()) {
-            Volume vl = it.next();
-            if (vl.getId() == id) {
-                it.remove();
-                System.out.println("Volumul a fost scos din acest roman.");
-                return;
-            }
+    public static Novel parse(ResultSet res)  {
+        try {
+            CRUD<Media> cr = CRUD.getInstance();
+            Media sup = cr.readByID(Media.class, res.getInt(1));
+            return new Novel(sup, res.getString(2), res.getInt(3));
         }
-        System.out.println("Volumul nu apartine acestui roman.");
+        catch(Exception e) {
+            e.printStackTrace();
+        }
+        return null;
     }
 
-    @Override
-    public String shortDescription() {
-        return super.toString() + "Categoria: Roman\n";
-    }
 
     public String toString() {
         String s;
@@ -45,10 +46,15 @@ public class Novel extends Media {
         s += this.author;
         s += "\n";
         s += "Lista volumelor\n\n";
+        List<Volume> volumes = operationsService.getInstance().getVolumes(this.id);
         for(Volume vl: volumes) {
             s += vl.toString() + "\n";
         }
         return s;
+    }
+
+    public String shortDescription() {
+        return super.toString();
     }
 
 }

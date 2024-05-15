@@ -1,61 +1,75 @@
 package Media;
 
-import java.util.HashMap;
-import java.util.Map;
+import Servicess.CRUD;
 
-public abstract class Media {
-    private String name;
+import java.sql.ResultSet;
+
+public class Media {
     protected int id;
-    private static int idMax = 0;
-    private double rating = 0;
-    private int numberOfReviews = 0;
-    protected static Map<Integer, Media> productions = new HashMap<>();
+    private String name;
+    private double rating = 1;
 
-    public Media(String name) {
+    String category = "";
+
+    public Media(String name, String category) {
         this.name = name;
-        idMax++;
-        id = idMax;
+        this.category = category;
+        CRUD<Media> CR = CRUD.getInstance();
+        this.id = CR.getNextId(Media.class);
+    }
+
+    public Media(int id, String name, double rating, String category) {
+        this.id = id;
+        this.name = name;
+        this.rating = rating;
+        this.category = category;
+    }
+    public Media(Media md) {
+        this.id = md.id;
+        this.name = md.name;
+        this.category = md.category;
+        this.rating = md.rating;
     }
 
     public int getId() {
         return id;
     }
 
-
-    public static Media getById(int val) {
-        return productions.getOrDefault(val, null);
-    }
-
-    public abstract String shortDescription();
     public String toString() {
         String s;
         s = "Nume: " + this.name + "\n";
         s += "ID: " + Integer.toString(this.id) + "\n";
         s += "Rating: " + Double.toString(rating) + "\n";
+        s += "Category: " + this.category + "\n";
         return s;
     }
 
-    public void eraseReview(int val) {
-        double sum = rating * numberOfReviews;
-        sum -= val;
-        numberOfReviews--;
-        if(numberOfReviews == 0) rating = 0;
-        else rating = sum / numberOfReviews;
-    }
-    public void addReview(int val) {
-        double sum = rating * numberOfReviews;
-        sum += val;
-        numberOfReviews++;
-        rating = sum / numberOfReviews;
+    public String shortDescription() {
+        return toString();
     }
 
-    public void updateReview(int dif) {
-        double sum = rating * numberOfReviews;
-        sum += dif;
-        rating = sum / numberOfReviews;
-    }
+    public static Media parse(ResultSet res) {
+        try {
+            return new Media(res.getInt(1),
+                         res.getString(2),
+                         res.getDouble(3),
+                         res.getString(4));
+        }
+        catch(Exception e) {
+            e.printStackTrace();
+        }
 
+        return null;
+    }
     public String getName() {
         return name;
+    }
+
+    public String getCategory() {
+        return category;
+    }
+
+    public void setRating(double rating) {
+        this.rating = rating;
     }
 }

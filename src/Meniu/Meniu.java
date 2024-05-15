@@ -2,17 +2,17 @@ package Meniu;
 
 import Account.*;
 import Media.*;
+import Servicess.*;
 
-import java.util.HashMap;
-import java.util.Map;
 import java.util.Scanner;
 import java.util.List;
-import java.util.ArrayList;
 
 public class Meniu {
     private static final Scanner scanner = new Scanner(System.in);
-    protected static Map<String, List<Media>> media = new HashMap<>();
     private static Meniu instance;
+
+    private AccountService acService = AccountService.getInstance();
+    private operationsService opService = operationsService.getInstance();
     private Meniu() {}
 
     public static Meniu getInstance() {
@@ -23,7 +23,7 @@ public class Meniu {
     }
 
     public void meniuAutentificare() {
-        Admin.getInstance();
+        acService.setAdminInstance();
         while(true) {
 
             System.out.println("Bine ati venit!\n");
@@ -38,10 +38,11 @@ public class Meniu {
                     String name = readNameAccount();
                     String password = readPassword();
 
-                    Account ac = Account.logIn(name, password);
+                    Account ac = acService.logIn(name, password);
                     if (ac != null) {
                         if (ac instanceof User) {
                             this.meniuUser((User) ac);
+                            break;
                         }
 
                         if (ac instanceof Admin) {
@@ -63,11 +64,15 @@ public class Meniu {
                     String name = readNameAccount();
                     String password = readPassword();
 
-                    boolean checkedName =  User.nameCheck(name);
+                    boolean checkedName = acService.nameCheck(name);
                     System.out.println();
-                    boolean checkedPassword = User.passwordCheck(password);
-                    if(checkedName &&checkedPassword) {
-                        User.createAccount(name, password);
+                    boolean checkedPassword = acService.passwordCheck(password);
+                    if(checkedName && checkedPassword) {
+                        User us = new User(name, password);
+                        Account ac = new Account(us);
+                        CRUD<Account> cr = CRUD.getInstance();
+                        cr.create(ac);
+                        cr.create(us);
                         System.out.println("Introduceti orice tasta pentru a continua");
                         ch = scanner.next().charAt(0);
                         scanner.nextLine();
@@ -98,8 +103,7 @@ public class Meniu {
         while(true) {
             System.out.println("Pentru a cauta o productie media introduceti tasta C");
             System.out.println("Pentru a afisa detaliile unei productii media introduceti tast D");
-            System.out.println("Pentru a adauga un review sau al actualiza pe cel vechi introduceti tasta R");
-            System.out.println("Pentru a sterge un review introduceti tasta S");
+            System.out.println("Pentru a fisa toate productiile media introduceti tasta T");
             System.out.println("Pentru a va afisa lista de review-uri introduceti tasta L");
             System.out.println("Pentru a vedea watch listul introduceti tasta W");
             System.out.println("Pentru a va deconecta introduceti tasta X");
@@ -109,59 +113,23 @@ public class Meniu {
             if(ch == 'X' || ch == 'x') {
                 break;
             }
-            else if(ch == 'R' || ch == 'r') {
-                while(true) {
-                    int ID = readID();
-                    Media md = Media.getById(ID);
-                    if (md == null) {
-                        ch = idNotFound();
-                        if(ch == 'X' || ch == 'x') {
-                            break;
-                        }
-                    }
-                    else {
-                        reviewAdd(us, md);
-                        System.out.println("Pentru a va intoarce introduceti orice tasta");
-                        scanner.next().charAt(0);
-                        scanner.nextLine();
-                        break;
-                    }
-                }
-            }
             else if(ch == 'D' || ch == 'd') {
                 displayDetailed(us);
             }
             else if(ch == 'C' || ch == 'c') {
                 displayMedia(us);
             }
-            else if(ch == 'S' || ch == 's') {
-                reviewErase(us);
+
+            else if(ch == 'T' || ch == 't') {
+                displayMediaAll(us);
             }
+
             else if(ch == 'L' || ch == 'l') {
-                System.out.println(us.displayReview());
-                System.out.println();
-                System.out.println("Pentru a va intoarce introduceti orice tasta");
-                scanner.next().charAt(0);
-                scanner.nextLine();
+                displayReviews(us);
             }
 
             else if(ch == 'W' || ch == 'w') {
-                while(true) {
-                    System.out.println(us.displayWatch());
-                    System.out.println("Pentru a adauga o productie in watch list A");
-                    System.out.println("Pentru a sterge o productie din watch list S");
-                    ch = returnKey();
-                    if(ch == 'A' || ch == 'a') {
-                        addToWatch(us);
-                    }
-
-                    else if(ch == 'S' || ch == 's') {
-                        removeFromWatch(us);
-                    }
-
-                    else break;
-
-                }
+                displayWatchList(us);
             }
 
             else {
@@ -175,31 +143,48 @@ public class Meniu {
             System.out.println("Pentru a adauga un nou anime introduceti tasta A");
             System.out.println("Pentru a adauga un nou roman introduceti tasta R");
             System.out.println("Pentru a adauga o noua serie manga introduceti tasta M");
-            System.out.println("Pentru a adauga o cauta o productie media introduceti tasta C");
+            System.out.println("Pentru a fisa toate productiile media introduceti tasta T");
+            System.out.println("Pentru a  cauta o productie media introduceti tasta C");
             System.out.println("Pentru a afisa detaliile unei productii media introduceti tasta D");
+            System.out.println("Pentru a sterge o productie media introduceti tasta E");
             System.out.println("Pentru a va deconecta introduceti tasta X");
             char ch = scanner.next().charAt(0);
             scanner.nextLine();
-            
+
             if(ch == 'A' || ch == 'a') {
                 String name = readNameMedia();
-                Anime an;
-                an = ad.CreateAnime(name);
-                addMedia(an);
+                Anime an = new Anime(name);
+                Media md = new Media(an);
+                CRUD<Media> cr = CRUD.getInstance();
+                cr.create(md);
+                cr.create(an);
+                returnKey();
             }
 
             else if(ch == 'R' || ch == 'r') {
                 String name = readNameMedia();
                 String author = readNameAuthor();
-                Novel nv = ad.CreateNovel(name, author);
-                addMedia(nv);
+                Novel nv = new Novel(name, author);
+                Media md = new Media(nv);
+                CRUD<Media> cr = CRUD.getInstance();
+                cr.create(md);
+                cr.create(nv);
+                returnKey();
             }
 
             else if(ch == 'M' || ch == 'm') {
                 String name = readNameMedia();
                 String author = readNameAuthor();
-                Manga mg = ad.CreateManga(name, author);
-                addMedia(mg);
+                Manga mg = new Manga(name, author);
+                Media md = new Media(mg);
+                CRUD<Media> cr = CRUD.getInstance();
+                cr.create(md);
+                cr.create(mg);
+                returnKey();
+            }
+
+            else if(ch == 'T' || ch == 't') {
+                displayMediaAll(ad);
             }
 
             else if(ch == 'C' || ch == 'c') {
@@ -208,6 +193,10 @@ public class Meniu {
 
             else if(ch == 'D' || ch == 'd') {
                 displayDetailed(ad);
+            }
+
+            else if(ch == 'E' || ch == 'e') {
+                eraseMedia();
             }
 
             else if(ch == 'X' || ch == 'x') {
@@ -278,25 +267,31 @@ public class Meniu {
         return id;
     }
 
-    public void addMedia(Media md) {
-        String name = md.getName().toLowerCase();
-        if(media.containsKey(name)) {
-            media.get(name).add(md);
+    public void displayMediaAll(Account ac) {
+        CRUD<Media> cr = CRUD.getInstance();
+        List<Media> data = cr.read(Media.class);
+        System.out.println("Lista productiilor media");
+        for(Media md: data) {
+            System.out.println(md.toString());
         }
-        else {
-            media.put(name, new ArrayList<>());
-            media.get(name).add(md);
+
+        System.out.println("Pentru a afisa detaliile unei productii media introduceti tasta D");
+        char ch = returnKey();
+
+        if(ch == 'D' || ch == 'd') {
+            displayDetailed(ac);
+            returnKey();
         }
-        System.out.println("Introduceti orice tasta pentru va intoarce la meniul de administrator");
-        scanner.next().charAt(0);
-        scanner.nextLine();
     }
 
     public void displayMedia(Account ac) {
         String name = readNameMedia().toLowerCase();
-        for(Media md: media.get(name)) {
-            System.out.println(md.shortDescription());
+        List<Media> data = opService.getMediaByName(name);
+        System.out.println("Lista productiilor media");
+        for(Media md: data) {
+            System.out.println(md.toString());
         }
+
         System.out.println("Pentru a afisa detaliile unei productii media introduceti tasta D");
         char ch = returnKey();
 
@@ -306,109 +301,207 @@ public class Meniu {
         }
 
     }
-    
-    public Episode readEpisode() {
+
+    public Episode readEpisode(int id_anime) {
         String name = readNameMedia();
         System.out.println("Intoduceti durata episodului: ");
         int ln = scanner.nextInt();
         scanner.nextLine();
+        System.out.println(ln);
         System.out.println();
-        return new Episode(name, ln);
+        return new Episode(name, ln, id_anime);
     }
 
 
-    public Chapter readChapter() {
+    public Chapter readChapter(int id_manga) {
         String name = readNameMedia();
         System.out.println();
-        return new Chapter(name);
+        return new Chapter(name, id_manga);
     }
 
 
-    public Volume readVolum() {
+    public Volume readVolum(int id_novel) {
         String name = readNameMedia();
         System.out.println("Intoduceti numarul de pagini: ");
         int pg = scanner.nextInt();
         scanner.nextLine();
         System.out.println();
-        return new Volume(name, pg);
+        return new Volume(name, pg, id_novel);
+    }
+
+    public Media getValidMedia() {
+        Media md = null;
+        while(md == null) {
+            int id = readID();
+            md =  opService.getDetailedInfo(id);
+            if (md == null) {
+                char ch = idNotFound();
+                if(ch == 'X' || ch == 'x') return null;
+            }
+        }
+        return md;
     }
 
 
     public void displayDetailed(Account ac) {
-        Media md = null;
-        while(md == null) {
-            int id = readID();
-            md = Media.getById(id);
-            if (md == null) {
-                char ch = idNotFound();
-                if(ch == 'X' || ch == 'x') return;
-            }
-        }
+        Media md = getValidMedia();
+        if(md == null) return;
+
 
         if(ac instanceof Admin) {
-            if (md instanceof Anime) {
-                System.out.println(md);
-                System.out.println("Pentru a adauga un episod introduceti tasta A");
-                System.out.println("Pentru a sterge un episod introduceti tasta S");
-                char ch = returnKey();
-                if (ch == 'A' || ch == 'a') {
-                    ((Anime) md).addEpisode(readEpisode());
-                    returnKey();
-                }
-                if (ch == 'S' || ch == 's') {
-                    int idEpisod = readID();
-                    ((Anime) md).removeEpisod(idEpisod);
-                    returnKey();
+            if(md instanceof Anime) {
+                while(true) {
+                    System.out.println(md);
+                    System.out.println("Pentru a adauga un episod introduceti tasta A");
+                    System.out.println("Pentru a sterge un episod introduceti tasta S");
+                    char ch = returnKey();
+                    CRUD<Episode> cr = CRUD.getInstance();
+                    if (ch == 'A' || ch == 'a') {
+                        Episode ep = readEpisode(md.getId());
+                        cr.create(ep);
+                        returnKey();
+                    }
+                    else if (ch == 'S' || ch == 's') {
+                        int idEpisod = readID();
+                        cr.delete(Episode.class, idEpisod);
+                        System.out.println("Episodul a fost sters");
+                        returnKey();
+                    }
+                    else break;
                 }
             }
 
             else if (md instanceof Novel) {
-                System.out.println(md);
-                System.out.println("Pentru a adauga un volum introduceti tasta A");
-                System.out.println("Pentru a sterge un volum introduceti tasta S");
-                char ch = returnKey();
-                if (ch == 'A' || ch == 'a') {
-                    ((Novel) md).addVolume(readVolum());
-                    returnKey();
-                }
-                if (ch == 'S' || ch == 's') {
-                    int idVolume = readID();
-                    ((Novel) md).removeVolume(idVolume);
-                    returnKey();
+                while(true) {
+                    System.out.println(md);
+                    System.out.println("Pentru a adauga un volum introduceti tasta A");
+                    System.out.println("Pentru a sterge un volum introduceti tasta S");
+                    char ch = returnKey();
+                    CRUD<Volume> cr = CRUD.getInstance();
+                    if (ch == 'A' || ch == 'a') {
+                        Volume vl = readVolum(md.getId());
+                        cr.create(vl);
+                        returnKey();
+                    }
+                    else if (ch == 'S' || ch == 's') {
+                        int idVolume = readID();
+                        cr.delete(Volume.class, idVolume);
+                        System.out.println("Volumul a fost sters");
+                        returnKey();
+                    }
+                    else break;
                 }
             }
 
             else if (md instanceof Manga) {
-                System.out.println(md);
-                System.out.println("Pentru a adauga un capitol introduceti tasta A");
-                System.out.println("Pentru a sterge un captiol introduceti tasta S");
-                char ch = returnKey();
-                if (ch == 'A' || ch == 'a') {
-                    ((Manga) md).addChapter(readChapter());
-                    returnKey();
-                }
-                if (ch == 'S' || ch == 's') {
-                    int idCapitol = readID();
-                    ((Manga) md).removeChapter(idCapitol);
-                    returnKey();
+                while (true) {
+                    System.out.println(md);
+                    System.out.println("Pentru a adauga un capitol introduceti tasta A");
+                    System.out.println("Pentru a sterge un captiol introduceti tasta S");
+                    char ch = returnKey();
+                    CRUD<Chapter> cr = CRUD.getInstance();
+                    if (ch == 'A' || ch == 'a') {
+                        Chapter chap = readChapter(md.getId());
+                        cr.create(chap);
+                        returnKey();
+                    }
+                    else if (ch == 'S' || ch == 's') {
+                        int idCapitol = readID();
+                        cr.delete(Chapter.class, idCapitol);
+                        System.out.println("Capitolul a fost sters");
+                        returnKey();
+                    }
+                    else break;
                 }
             }
         }
 
         else if(ac instanceof User) {
-            System.out.println(md);
-            System.out.println("Pentru a adauga un review sau al actualiza pe cel vechi introduceti tasta R");
-            System.out.println("Pentru a va sterge review-ul introduceti tasta S");
-            char ch = returnKey();
-            if(ch == 'R') {
-                reviewAdd((User) ac, md);
-            }
-            if(ch == 'S' || ch == 's') {
-                ((User) ac).eraseReview(md);
-                returnKey();
+            while(true) {
+                md =  opService.getDetailedInfo(md.getId());
+                System.out.println(md);
+                CRUD<Review> cr = CRUD.getInstance();
+                Review r = opService.getReview(ac.getId(), md.getId());
+                if(r != null) {
+                    System.out.println("Nota oferita: " + String.valueOf(r.getRating()));
+
+                }
+                WatchList w = opService.getWatchListItem(ac.getId(), md.getId());
+                if(w == null) {
+                    System.out.println("Productia nu se afla in watch list \n");
+                    System.out.println("Pentru a adauga productia din watch list introduceti tasta W");
+                }
+                else {
+                    System.out.println("Productia se afla in watch list \n");
+                    System.out.println("Pentru a sterge productia din watch list introduceti tasta W");
+                }
+
+                System.out.println("Pentru a adauga un review sau al actualiza pe cel vechi introduceti tasta R");
+                if(r != null) System.out.println("Pentru a va sterge review-ul introduceti tasta S");
+                char ch = returnKey();
+                if(ch == 'R') {
+                    reviewAdd((User) ac, md);
+                    opService.ratingUpdate(md);
+                    returnKey();
+                }
+                else if(ch == 'W' || ch == 'w') {
+                    if(w == null) addToWatch((User) ac, md);
+                    else removeFromWatch((User) ac, md);
+                    returnKey();
+                }
+                else if((ch == 'S' || ch == 's') && r != null) {
+                    reviewErase((User) ac, md);
+                    opService.ratingUpdate(md);
+                    System.out.println("Review-ul a fost sters");
+                    returnKey();
+                }
+                else break;
             }
         }
 
+    }
+
+    void eraseMedia() {
+        int id = readID();
+        Media md = opService.getDetailedInfo(id);
+
+        if(md.getCategory() != null) {
+            if (md.getCategory().equals("anime")) {
+                List<Episode> episodes = operationsService.getInstance().getEpisodes(md.getId());
+                CRUD<Episode> cr = CRUD.getInstance();
+                for (Episode ep : episodes) {
+                    cr.delete(Episode.class, ep.getId());
+                }
+                CRUD<Anime> cran = CRUD.getInstance();
+                cran.delete(Anime.class, md.getId());
+            }
+
+            if (md.getCategory().equals("manga")) {
+                List<Chapter> chapters = operationsService.getInstance().getChapter(md.getId());
+                CRUD<Chapter> cr = CRUD.getInstance();
+                for (Chapter ch : chapters) {
+                    cr.delete(Chapter.class, ch.getId());
+                }
+                CRUD<Manga> crmg = CRUD.getInstance();
+                crmg.delete(Manga.class, md.getId());
+            }
+
+            if (md.getCategory().equals("novel")) {
+                List<Volume> volumes = operationsService.getInstance().getVolumes(md.getId());
+                CRUD<Volume> cr = CRUD.getInstance();
+                for (Volume vl : volumes) {
+                    cr.delete(Volume.class, vl.getId());
+                }
+                CRUD<Novel> crnv = CRUD.getInstance();
+                crnv.delete(Novel.class, md.getId());
+            }
+        }
+
+        CRUD<Media> cr = CRUD.getInstance();
+        cr.delete(Media.class, md.getId());
+
+        System.out.println("Productia media a fost stearsa");
+        returnKey();
     }
 
     public void reviewAdd(User us, Media md) {
@@ -418,7 +511,11 @@ public class Meniu {
             int nota = scanner.nextInt();
             scanner.nextLine();
             if(nota >= 1 && nota <= 10) {
-                us.addReview(md, nota);
+                reviewErase(us, md);
+                CRUD<Review> cr = CRUD.getInstance();
+                Review r = new Review(nota, md.getId(), us.getId());
+                cr.create(r);
+                System.out.println("Review-ul a fost adaugat/actualizat");
                 break;
             }
             else {
@@ -433,55 +530,91 @@ public class Meniu {
         }
     }
 
-    void reviewErase(User us) {
-        while(true) {
-            int ID = readID();
-            Media md = Media.getById(ID);
-            if (md == null) {
-                char ch = idNotFound();
-                if (ch == 'X' || ch == 'x') {
-                    break;
-                }
-            }
-            else {
-                us.eraseReview(md);
-                returnKey();
-                break;
-            }
-        }
+    void reviewErase(User us, Media md) {
+        CRUD<Review> cr = CRUD.getInstance();
+        Review r = opService.getReview(us.getId(), md.getId());
+        if(r != null) cr.delete(Review.class, r.getId());
     }
-    void addToWatch(User us) {
+
+    void displayReviews(User us) {
         while(true) {
-            int ID = readID();
-            Media md = Media.getById(ID);
-            if (md == null) {
-                char ch = idNotFound();
-                if(ch == 'X' || ch == 'x') {
-                    break;
+            System.out.println("Lista review-urilor:\n");
+            List<Review> data = opService.getReviewList(us.getId());
+            for(Review r: data) {
+                Media md = opService.getDetailedInfo(r.getId_media());
+                System.out.print(md.shortDescription());
+                System.out.println("Nota oferita: " + String.valueOf(r.getRating()));
+                System.out.println();
+            }
+
+            System.out.println("Pentru a adauga o recenzie introduceti tasta A");
+            System.out.println("Pentru a sterge o recenzie introduceti tasta S");
+            char ch = returnKey();
+            if(ch == 'A' || ch == 'a' || ch == 'S' || ch == 's') {
+                Media md = getValidMedia();
+
+                if(md != null) {
+
+                    if (ch == 'A' || ch == 'a') {
+                        reviewAdd(us, md);
+                        opService.ratingUpdate(md);
+                        returnKey();
+                    }
+                    else {
+                        reviewErase(us, md);
+                        opService.ratingUpdate(md);
+                        System.out.println("Review-ul a fost sters");
+                        returnKey();
+                    }
                 }
             }
-            else {
-                us.addToWatch(md);
-                break;
-            }
+            else break;
         }
     }
 
-    void removeFromWatch(User us) {
+    void displayWatchList(User us) {
         while(true) {
-            int ID = readID();
-            Media md = Media.getById(ID);
-            if (md == null) {
-                char ch = idNotFound();
-                if(ch == 'X' || ch == 'x') {
-                    break;
+            System.out.println("WatchList:\n");
+            List<WatchList> data = opService.getWatchList(us.getId());
+            for(WatchList w: data) {
+                Media md = opService.getDetailedInfo(w.getId_media());
+                System.out.println(md.shortDescription());
+            }
+
+            System.out.println("Pentru a adauga o productie in watch list introduceti tasta A");
+            System.out.println("Pentru a sterge o productie din watch list intoduceti tasta S");
+            char ch = returnKey();
+            if(ch == 'A' || ch == 'a' || ch == 'S' || ch == 's') {
+                Media md = getValidMedia();
+
+                if(md != null) {
+
+                    if (ch == 'A' || ch == 'a') {
+                        addToWatch(us, md);
+                        returnKey();
+                    }
+                    else {
+                        removeFromWatch(us, md);
+                        returnKey();
+                    }
                 }
             }
-            else {
-                us.removeFromWatch(md);
-                break;
-            }
+            else break;
         }
+    }
+
+    void addToWatch(User us, Media md) {
+        WatchList w = new WatchList(md.getId(), us.getId());
+        CRUD<WatchList> cr = CRUD.getInstance();
+        cr.create(w);
+        System.out.println("Productia media a fost adaugata in watch list");
+    }
+
+    void removeFromWatch(User us, Media md) {
+        CRUD<WatchList> cr = CRUD.getInstance();
+        WatchList w = opService.getWatchListItem(us.getId(), md.getId());
+        if(w != null) cr.delete(WatchList.class, w.getId());
+        System.out.println("Productia media a fost stearsa din watch list");
     }
 }
 

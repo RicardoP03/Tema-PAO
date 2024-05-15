@@ -1,46 +1,41 @@
 package Media;
 
+import Servicess.CRUD;
+
+import java.sql.ResultSet;
 import java.util.List;
-import java.util.ArrayList;
-import java.util.Iterator;
+import Servicess.*;
 public class Anime extends Media {
+    int id;
     private int duration = 0;
-    private List<Episode> episodes = new ArrayList<>();
     public Anime(String name) {
-        super(name);
-        productions.put(id, this);
+        super(name, "anime");
+        id = super.getId();
         System.out.println("Animeul a fost creat");
     }
 
-    public void addEpisode(Episode ep) {
-        episodes.add(ep);
-        duration += ep.getDuration();
-        System.out.println("Episodul a fost adaugat animeului.");
+    private Anime(Media md, int duration) {
+        super(md);
+        this.id = super.getId();
+        this.duration = duration;
     }
 
-    public void removeEpisod(int id) {
-        Iterator<Episode> it = episodes.iterator();
-        while(it.hasNext()) {
-            Episode ep = it.next();
-            if (ep.getId() == id) {
-                it.remove();
-                duration -= ep.getDuration();
-                System.out.println("Episodul a fost scos din acest anime.");
-                return;
-            }
+    public static Anime parse(ResultSet res)  {
+        try {
+            CRUD<Media> cr = CRUD.getInstance();
+            Media sup = cr.readByID(Media.class, res.getInt(1));
+            return new Anime(sup, res.getInt(2));
         }
-        System.out.println("Episodul nu apartine acestui anime.");
-    }
-
-    @Override
-    public String shortDescription() {
-        return super.toString() + "Categoria: Anime\n";
+        catch(Exception e) {
+            e.printStackTrace();
+        }
+        return null;
     }
 
     public String toString() {
         String s;
         s = super.toString();
-        s += "Durata totala a animeului este: " + Integer.toString(duration) + " minute\n";
+        List<Episode> episodes = operationsService.getInstance().getEpisodes(this.id);
         s += "Animeul are: " + Integer.toString(episodes.size()) +  " episoade\n";
         s += "Lista episodeslor:\n\n";
         for(Episode ep: episodes) {
@@ -48,4 +43,9 @@ public class Anime extends Media {
         }
         return s;
     }
+
+    public String shortDescription() {
+        return super.toString();
+    }
+
 }

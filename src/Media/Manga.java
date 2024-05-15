@@ -1,39 +1,38 @@
 package Media;
 
+import Servicess.CRUD;
+
+import java.sql.ResultSet;
 import java.util.List;
 import java.util.ArrayList;
 import java.util.Iterator;
+import Servicess.*;
 public class Manga extends Media {
+    int id;
     private String author;
-    private List<Chapter> chapters = new ArrayList<>();
     public Manga(String name, String author) {
-        super(name);
+        super(name, "manga");
         this.author = author;
-        productions.put(id, this);
+        this.id = super.id;
         System.out.println("Seria manga a fost creata");
     }
 
-    public void addChapter(Chapter ch) {
-        chapters.add(ch);
-        System.out.println("Capitolul a fost adaugat acestei serii manga.");
+    private Manga(Media md, String Author) {
+        super(md);
+        this.id = super.getId();
+        this.author = Author;
     }
 
-    public void removeChapter(int id) {
-        Iterator<Chapter> it = chapters.iterator();
-        while(it.hasNext()) {
-            Chapter mg = it.next();
-            if (mg.getId() == id) {
-                it.remove();
-                System.out.println("Capitolul a fost scos din acesta serie manga.");
-                return;
-            }
+    public static Manga parse(ResultSet res)  {
+        try {
+            CRUD<Media> cr = CRUD.getInstance();
+            Media sup = cr.readByID(Media.class, res.getInt(1));
+            return new Manga(sup, res.getString(2));
         }
-        System.out.println("Capitolul nu apartine acestei serii manga.");
-    }
-
-    @Override
-    public String shortDescription() {
-        return super.toString() + "Categoria: Manga\n";
+        catch(Exception e) {
+            e.printStackTrace();
+        }
+        return null;
     }
 
     public String toString() {
@@ -43,9 +42,14 @@ public class Manga extends Media {
         s += this.author;
         s += "\n";
         s += "Lista capitolelor: \n\n";
+        List<Chapter> chapters = operationsService.getInstance().getChapter(this.id);
         for(Chapter ch: chapters) {
             s += ch.toString() + "\n";
         }
         return s;
+    }
+
+    public String shortDescription() {
+        return super.toString();
     }
 }
