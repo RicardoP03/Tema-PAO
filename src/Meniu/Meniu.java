@@ -14,7 +14,7 @@ public class Meniu {
     private AccountService acService = AccountService.getInstance();
     private operationsService opService = operationsService.getInstance();
 
-    private CSVWriterReader writer = new CSVWriterReader("CSVData/actions.csv", "CSVData/auxiliar.csv");
+    private CSVWriterReader writer = new CSVWriterReader("CSVData/actions.csv");
     private Meniu() {}
 
     public static Meniu getInstance() {
