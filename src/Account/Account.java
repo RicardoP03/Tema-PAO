@@ -26,7 +26,17 @@ public class Account {
         this.name = ac.name;
     }
 
+    public String toString() {
+        String s = "Nume: " + this.name + "\n";
+        s += "Parola: " + this.password;
+        return s;
+    }
+
     public int getId() {
         return id;
+    }
+
+    public String getName() {
+        return name;
     }
 }

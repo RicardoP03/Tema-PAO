@@ -10,6 +10,6 @@ public class DataBaseDetails {
     }
 
     static public String getPass() {
-        return "";
+        return "parola123";
     }
 }

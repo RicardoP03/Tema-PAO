@@ -4,6 +4,7 @@ import Account.*;
 import Media.*;
 import Servicess.*;
 
+import java.util.ArrayList;
 import java.util.Scanner;
 import java.util.List;
 
@@ -64,35 +65,15 @@ public class Meniu {
                 }
             }
             else if(ch == 'C' || ch == 'c') {
-                while(true) {
-                    String name = readNameAccount();
-                    String password = readPassword();
-
-                    boolean checkedName = acService.nameCheck(name);
-                    System.out.println();
-                    boolean checkedPassword = acService.passwordCheck(password);
-                    if(checkedName && checkedPassword) {
-                        User us = new User(name, password);
-                        Account ac = new Account(us);
-                        CRUD<Account> cr = CRUD.getInstance();
-                        cr.create(ac);
-                        cr.create(us);
-                        writer.exportToCSV("Creare cont utilizator");
-                        System.out.println("Introduceti orice tasta pentru a continua");
-                        ch = scanner.next().charAt(0);
-                        scanner.nextLine();
-                        break;
-                    }
-                    else {
-                        System.out.println();
-                        System.out.println("Introduceti orice tasta X pentru va intoarce la meniul de autentificare");
-                        System.out.println("Introduceti orice alta tasta pentru a reintroduce datele");
-                        ch = scanner.next().charAt(0);
-                        scanner.nextLine();
-                        if(ch == 'X' || ch == 'x') break;
-                    }
-
-
+                List<String> L = getValidNamePassword(null);
+                if(L.get(0) != null) {
+                    CRUD<Account> cr = CRUD.getInstance();
+                    User us = new User(L.get(0), L.get(1));
+                    Account aux = new Account(us);
+                    cr.create(aux);
+                    cr.create(us);
+                    writer.exportToCSV("Creare cont utilizator");
+                    returnKey();
                 }
             }
             else if(ch == 'X' || ch == 'x') {
@@ -111,6 +92,7 @@ public class Meniu {
             System.out.println("Pentru a fisa toate productiile media introduceti tasta T");
             System.out.println("Pentru a va afisa lista de review-uri introduceti tasta L");
             System.out.println("Pentru a vedea watch listul introduceti tasta W");
+            System.out.println("Pentru a accesa setarile contului introduceti tasta S");
             System.out.println("Pentru a va deconecta introduceti tasta X");
             char ch = scanner.next().charAt(0);
             scanner.nextLine();
@@ -137,9 +119,36 @@ public class Meniu {
                 displayWatchList(us);
             }
 
+            else if(ch == 'S' || ch == 's') {
+                accountSettingsMenu(us);
+            }
+
             else {
                 unkownKey();
             }
+        }
+    }
+
+    public void accountSettingsMenu(User us) {
+        while(true) {
+            System.out.println(us.toString());
+            System.out.println("Pentru a schimba numele sau parola introduceti tasta S");
+            char ch = returnKey();
+
+            if(ch == 'S' || ch == 's') {
+                List<String> L = getValidNamePassword(us.getName());
+                if(L.get(0) != null) {
+                    CRUD<Account> cr = CRUD.getInstance();
+                    Account aux = new Account(us);
+                    Account newAccount = new User(us.getId(), L.get(0), L.get(1));
+                    us = (User) newAccount;
+                    newAccount = new Account(newAccount);
+                    cr.update(aux, newAccount);
+                    writer.exportToCSV("Actualizare cont utilizator");
+                    returnKey();
+                }
+            }
+            else break;
         }
     }
 
@@ -251,6 +260,40 @@ public class Meniu {
         String password = scanner.next();
         scanner.nextLine();
         return password;
+    }
+
+    public ArrayList<String> getValidNamePassword(String oldName) {
+        ArrayList<String> ar = new ArrayList<>();
+        while(true) {
+            String name = readNameAccount();
+            String password = readPassword();
+
+            boolean checkedName = true;
+            if(oldName != null && !name.equals(oldName)) {
+                checkedName = acService.nameCheck(name);
+            }
+            System.out.println();
+            boolean checkedPassword = acService.passwordCheck(password);
+            if(checkedName && checkedPassword) {
+                ar.add(name);
+                ar.add(password);
+                break;
+            }
+            else {
+                System.out.println();
+                System.out.println("Introduceti orice tasta X pentru va intoarce");
+                System.out.println("Introduceti orice alta tasta pentru a reintroduce datele");
+                char ch = scanner.next().charAt(0);
+                scanner.nextLine();
+                if (ch == 'X' || ch == 'x') {
+                    ar.add(null);
+                    ar.add(null);
+                    break;
+                }
+            }
+        }
+
+        return ar;
     }
 
     public String readNameMedia() {
