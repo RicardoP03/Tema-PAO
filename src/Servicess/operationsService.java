@@ -36,8 +36,7 @@ public class operationsService {
         List<Media> data = new ArrayList<Media>();
         try {
             name = name.toLowerCase();
-            String sql = "SELECT * FROM Media WHERE LOWER(name) LIKE \'%" + name + "%\'";
-            System.out.println(sql);
+            String sql = "SELECT * FROM media WHERE LOWER(name) LIKE \'%" + name + "%\'";
             PreparedStatement st = dataBase.prepareStatement(sql);
             ResultSet res = st.executeQuery();
 

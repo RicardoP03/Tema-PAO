@@ -13,6 +13,8 @@ public class Meniu {
 
     private AccountService acService = AccountService.getInstance();
     private operationsService opService = operationsService.getInstance();
+
+    private CSVWriterReader writer = new CSVWriterReader("CSVData/actions.csv", "CSVData/auxiliar.csv");
     private Meniu() {}
 
     public static Meniu getInstance() {
@@ -41,11 +43,13 @@ public class Meniu {
                     Account ac = acService.logIn(name, password);
                     if (ac != null) {
                         if (ac instanceof User) {
+                            writer.exportToCSV("Autentificare cont utilizator");
                             this.meniuUser((User) ac);
                             break;
                         }
 
                         if (ac instanceof Admin) {
+                            writer.exportToCSV("Autentificare cont administrator");
                             this.meniuAdmin((Admin) ac);
                             break;
                         }
@@ -73,6 +77,7 @@ public class Meniu {
                         CRUD<Account> cr = CRUD.getInstance();
                         cr.create(ac);
                         cr.create(us);
+                        writer.exportToCSV("Creare cont utilizator");
                         System.out.println("Introduceti orice tasta pentru a continua");
                         ch = scanner.next().charAt(0);
                         scanner.nextLine();
@@ -143,8 +148,8 @@ public class Meniu {
             System.out.println("Pentru a adauga un nou anime introduceti tasta A");
             System.out.println("Pentru a adauga un nou roman introduceti tasta R");
             System.out.println("Pentru a adauga o noua serie manga introduceti tasta M");
-            System.out.println("Pentru a fisa toate productiile media introduceti tasta T");
-            System.out.println("Pentru a  cauta o productie media introduceti tasta C");
+            System.out.println("Pentru a afisa toate productiile media introduceti tasta T");
+            System.out.println("Pentru a cauta o productie media introduceti tasta C");
             System.out.println("Pentru a afisa detaliile unei productii media introduceti tasta D");
             System.out.println("Pentru a sterge o productie media introduceti tasta E");
             System.out.println("Pentru a va deconecta introduceti tasta X");
@@ -158,6 +163,7 @@ public class Meniu {
                 CRUD<Media> cr = CRUD.getInstance();
                 cr.create(md);
                 cr.create(an);
+                writer.exportToCSV("Creare anime");
                 returnKey();
             }
 
@@ -169,6 +175,7 @@ public class Meniu {
                 CRUD<Media> cr = CRUD.getInstance();
                 cr.create(md);
                 cr.create(nv);
+                writer.exportToCSV("Creare roman");
                 returnKey();
             }
 
@@ -180,6 +187,7 @@ public class Meniu {
                 CRUD<Media> cr = CRUD.getInstance();
                 cr.create(md);
                 cr.create(mg);
+                writer.exportToCSV("Creare manga");
                 returnKey();
             }
 
@@ -268,6 +276,7 @@ public class Meniu {
     }
 
     public void displayMediaAll(Account ac) {
+        writer.exportToCSV("Afisare toate productiile media");
         CRUD<Media> cr = CRUD.getInstance();
         List<Media> data = cr.read(Media.class);
         System.out.println("Lista productiilor media");
@@ -285,6 +294,7 @@ public class Meniu {
     }
 
     public void displayMedia(Account ac) {
+        writer.exportToCSV("Cautare productii media");
         String name = readNameMedia().toLowerCase();
         List<Media> data = opService.getMediaByName(name);
         System.out.println("Lista productiilor media");
@@ -307,7 +317,6 @@ public class Meniu {
         System.out.println("Intoduceti durata episodului: ");
         int ln = scanner.nextInt();
         scanner.nextLine();
-        System.out.println(ln);
         System.out.println();
         return new Episode(name, ln, id_anime);
     }
@@ -347,7 +356,7 @@ public class Meniu {
         Media md = getValidMedia();
         if(md == null) return;
 
-
+        writer.exportToCSV("Afisare detaliata productie media");
         if(ac instanceof Admin) {
             if(md instanceof Anime) {
                 while(true) {
@@ -359,12 +368,15 @@ public class Meniu {
                     if (ch == 'A' || ch == 'a') {
                         Episode ep = readEpisode(md.getId());
                         cr.create(ep);
+                        writer.exportToCSV("Creare episod");
                         returnKey();
+
                     }
                     else if (ch == 'S' || ch == 's') {
                         int idEpisod = readID();
                         cr.delete(Episode.class, idEpisod);
                         System.out.println("Episodul a fost sters");
+                        writer.exportToCSV("Stergere episod");
                         returnKey();
                     }
                     else break;
@@ -381,12 +393,14 @@ public class Meniu {
                     if (ch == 'A' || ch == 'a') {
                         Volume vl = readVolum(md.getId());
                         cr.create(vl);
+                        writer.exportToCSV("Creare volum");
                         returnKey();
                     }
                     else if (ch == 'S' || ch == 's') {
                         int idVolume = readID();
                         cr.delete(Volume.class, idVolume);
                         System.out.println("Volumul a fost sters");
+                        writer.exportToCSV("Stergere volum");
                         returnKey();
                     }
                     else break;
@@ -403,12 +417,14 @@ public class Meniu {
                     if (ch == 'A' || ch == 'a') {
                         Chapter chap = readChapter(md.getId());
                         cr.create(chap);
+                        writer.exportToCSV("Creare capitol");
                         returnKey();
                     }
                     else if (ch == 'S' || ch == 's') {
                         int idCapitol = readID();
                         cr.delete(Chapter.class, idCapitol);
                         System.out.println("Capitolul a fost sters");
+                        writer.exportToCSV("Stergere capitol");
                         returnKey();
                     }
                     else break;
@@ -441,7 +457,6 @@ public class Meniu {
                 char ch = returnKey();
                 if(ch == 'R') {
                     reviewAdd((User) ac, md);
-                    opService.ratingUpdate(md);
                     returnKey();
                 }
                 else if(ch == 'W' || ch == 'w') {
@@ -450,9 +465,7 @@ public class Meniu {
                     returnKey();
                 }
                 else if((ch == 'S' || ch == 's') && r != null) {
-                    reviewErase((User) ac, md);
-                    opService.ratingUpdate(md);
-                    System.out.println("Review-ul a fost sters");
+                    reviewErase((User) ac, md, true);
                     returnKey();
                 }
                 else break;
@@ -474,6 +487,7 @@ public class Meniu {
                 }
                 CRUD<Anime> cran = CRUD.getInstance();
                 cran.delete(Anime.class, md.getId());
+                writer.exportToCSV("Stergere anime");
             }
 
             if (md.getCategory().equals("manga")) {
@@ -484,6 +498,7 @@ public class Meniu {
                 }
                 CRUD<Manga> crmg = CRUD.getInstance();
                 crmg.delete(Manga.class, md.getId());
+                writer.exportToCSV("Stergere manga");
             }
 
             if (md.getCategory().equals("novel")) {
@@ -494,6 +509,7 @@ public class Meniu {
                 }
                 CRUD<Novel> crnv = CRUD.getInstance();
                 crnv.delete(Novel.class, md.getId());
+                writer.exportToCSV("Stergere novel");
             }
         }
 
@@ -511,11 +527,14 @@ public class Meniu {
             int nota = scanner.nextInt();
             scanner.nextLine();
             if(nota >= 1 && nota <= 10) {
-                reviewErase(us, md);
+                reviewErase(us, md, false);
                 CRUD<Review> cr = CRUD.getInstance();
                 Review r = new Review(nota, md.getId(), us.getId());
                 cr.create(r);
                 System.out.println("Review-ul a fost adaugat/actualizat");
+                writer.exportToCSV("Adaugare/Actualizare review");
+                opService.ratingUpdate(md);
+                writer.exportToCSV("Actualizare rating productie Media");
                 break;
             }
             else {
@@ -530,13 +549,20 @@ public class Meniu {
         }
     }
 
-    void reviewErase(User us, Media md) {
+    void reviewErase(User us, Media md, boolean flag) {
         CRUD<Review> cr = CRUD.getInstance();
         Review r = opService.getReview(us.getId(), md.getId());
         if(r != null) cr.delete(Review.class, r.getId());
+        if(flag) {
+            System.out.println("Review-ul a fost sters");
+            writer.exportToCSV("Stergere review");
+            opService.ratingUpdate(md);
+            writer.exportToCSV("Actualizare rating productie Media");
+        }
     }
 
     void displayReviews(User us) {
+        writer.exportToCSV("Afisare review-uri");
         while(true) {
             System.out.println("Lista review-urilor:\n");
             List<Review> data = opService.getReviewList(us.getId());
@@ -557,13 +583,10 @@ public class Meniu {
 
                     if (ch == 'A' || ch == 'a') {
                         reviewAdd(us, md);
-                        opService.ratingUpdate(md);
                         returnKey();
                     }
                     else {
-                        reviewErase(us, md);
-                        opService.ratingUpdate(md);
-                        System.out.println("Review-ul a fost sters");
+                        reviewErase(us, md, true);
                         returnKey();
                     }
                 }
@@ -573,6 +596,7 @@ public class Meniu {
     }
 
     void displayWatchList(User us) {
+        writer.exportToCSV("Afisare watch list");
         while(true) {
             System.out.println("WatchList:\n");
             List<WatchList> data = opService.getWatchList(us.getId());
@@ -607,6 +631,7 @@ public class Meniu {
         WatchList w = new WatchList(md.getId(), us.getId());
         CRUD<WatchList> cr = CRUD.getInstance();
         cr.create(w);
+        writer.exportToCSV("Adaugare productie watch list");
         System.out.println("Productia media a fost adaugata in watch list");
     }
 
@@ -614,6 +639,7 @@ public class Meniu {
         CRUD<WatchList> cr = CRUD.getInstance();
         WatchList w = opService.getWatchListItem(us.getId(), md.getId());
         if(w != null) cr.delete(WatchList.class, w.getId());
+        writer.exportToCSV("Stergere productie watch list");
         System.out.println("Productia media a fost stearsa din watch list");
     }
 }
