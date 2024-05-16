@@ -7,6 +7,7 @@ import Servicess.*;
 import java.util.ArrayList;
 import java.util.Scanner;
 import java.util.List;
+import java.util.Set;
 
 public class Meniu {
     private static final Scanner scanner = new Scanner(System.in);
@@ -90,6 +91,7 @@ public class Meniu {
             System.out.println("Pentru a cauta o productie media introduceti tasta C");
             System.out.println("Pentru a afisa detaliile unei productii media introduceti tast D");
             System.out.println("Pentru a fisa toate productiile media introduceti tasta T");
+            System.out.println("Pentru a afisa totate productile media sortate dupa rating introduceti tasta P");
             System.out.println("Pentru a va afisa lista de review-uri introduceti tasta L");
             System.out.println("Pentru a vedea watch listul introduceti tasta W");
             System.out.println("Pentru a accesa setarile contului introduceti tasta S");
@@ -114,6 +116,11 @@ public class Meniu {
             else if(ch == 'L' || ch == 'l') {
                 displayReviews(us);
             }
+
+            else if(ch == 'P' || ch == 'p') {
+                displayMediaSorted(us);
+            }
+
 
             else if(ch == 'W' || ch == 'w') {
                 displayWatchList(us);
@@ -353,6 +360,24 @@ public class Meniu {
             returnKey();
         }
 
+    }
+
+    public void displayMediaSorted(Account ac) {
+        writer.exportToCSV("Afisare productiile media sortate");
+        CRUD<Media> cr = CRUD.getInstance();
+        Set<Media> data = opService.getMediaSortedByRating();
+        System.out.println("Lista productiilor media");
+        for(Media md: data) {
+            System.out.println(md.toString());
+        }
+
+        System.out.println("Pentru a afisa detaliile unei productii media introduceti tasta D");
+        char ch = returnKey();
+
+        if(ch == 'D' || ch == 'd') {
+            displayDetailed(ac);
+            returnKey();
+        }
     }
 
     public Episode readEpisode(int id_anime) {

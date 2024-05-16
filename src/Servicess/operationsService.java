@@ -8,6 +8,9 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
+import java.util.TreeSet;
+
 import Media.*;
 
 public class operationsService {
@@ -235,6 +238,14 @@ public class operationsService {
             e.printStackTrace();
         }
         return null;
+    }
+
+    public Set<Media> getMediaSortedByRating() {
+        CRUD<Media> cr = CRUD.getInstance();
+        List<Media> mds = cr.read(Media.class);
+        Set<Media> sortedMedias = new TreeSet<>(new MediaRatingComparable());
+        sortedMedias.addAll(mds);
+        return sortedMedias;
     }
 
 }

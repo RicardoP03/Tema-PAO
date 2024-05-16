@@ -72,4 +72,8 @@ public class Media {
     public void setRating(double rating) {
         this.rating = rating;
     }
+
+    public double getRating() {
+        return rating;
+    }
 }
