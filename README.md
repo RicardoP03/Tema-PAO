@@ -2,6 +2,7 @@
 
 Interogări/acțiuni:
 - Crearea unui cont de utilizator.
+- Actualizarea informațiilor unui cont de utilizator.
 - Autentificarea în conturile de utilizator/administrator.
 - Crearea de producții media(anime/manga/novel) de către contul de administrator.
 - Crearea de continut(episoade/capitole/volume) pentru producțiile media de către contul de administrator.
