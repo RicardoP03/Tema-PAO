@@ -36,8 +36,8 @@ public class CRUD<T> {
     public Integer getNextId(Class<?> cl) {
         String query = "SELECT " + getTableName(cl) + "_sequence.NEXTVAL FROM DUAL";
         try {
-            Statement st = dataBase.createStatement();
-            ResultSet id = st.executeQuery(query);
+            PreparedStatement st = dataBase.prepareStatement(query);
+            ResultSet id = st.executeQuery();
             id.next();
             return id.getInt(1);
         }

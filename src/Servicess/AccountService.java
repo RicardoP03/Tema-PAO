@@ -3,10 +3,7 @@ package Servicess;
 import Account.*;
 import oracle.jdbc.pool.OracleDataSource;
 
-import java.sql.Connection;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.Statement;
+import java.sql.*;
 
 public class AccountService {
     private static AccountService instance;
@@ -33,8 +30,8 @@ public class AccountService {
     public ResultSet getByName(String name) {
         try {
             String sql = "SELECT id, name, password FROM Account WHERE name =" + "\'" + name + "\'";
-            Statement st = dataBase.createStatement();
-            ResultSet res = st.executeQuery(sql);
+            PreparedStatement st = dataBase.prepareStatement(sql);
+            ResultSet res = st.executeQuery();
             return  res;
         }
         catch(Exception e) {
