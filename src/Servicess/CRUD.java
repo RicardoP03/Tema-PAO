@@ -104,8 +104,9 @@ public class CRUD<T> {
 
     public T readByID(Class<T> cl, int id) {
         try {
-            String sql = "SELECT * FROM " + getTableName(cl) + " WHERE id = " + String.valueOf(id);
+            String sql = "SELECT * FROM " + getTableName(cl) + " WHERE id = ?";
             PreparedStatement st = dataBase.prepareStatement(sql);
+            st.setObject(1, id);
             ResultSet res = st.executeQuery();
 
             Method parseMethod = cl.getDeclaredMethod("parse", ResultSet.class);
@@ -125,8 +126,9 @@ public class CRUD<T> {
 
     public void delete(Class<T> cl, int id) {
         try {
-            String sql = "DELETE FROM " + getTableName(cl) + " WHERE id = " + String.valueOf(id);
+            String sql = "DELETE FROM " + getTableName(cl) + " WHERE id = ?";
             PreparedStatement st = dataBase.prepareStatement(sql);
+            st.setObject(1, id);
             ResultSet res = st.executeQuery();
         }
         catch(Exception e) {

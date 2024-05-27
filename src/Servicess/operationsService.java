@@ -39,8 +39,9 @@ public class operationsService {
         List<Media> data = new ArrayList<Media>();
         try {
             name = name.toLowerCase();
-            String sql = "SELECT * FROM media WHERE LOWER(name) LIKE \'%" + name + "%\'";
+            String sql = "SELECT * FROM media WHERE LOWER(name) LIKE ?";
             PreparedStatement st = dataBase.prepareStatement(sql);
+            st.setString(1, "%" + name + "%");
             ResultSet res = st.executeQuery();
 
             while (res.next()) {
@@ -90,8 +91,9 @@ public class operationsService {
     public List<Episode> getEpisodes(int id_anime) {
         List<Episode> data = new ArrayList<Episode>();
         try {
-            String sql = "SELECT * FROM Episode WHERE id_anime = " + String.valueOf(id_anime);
+            String sql = "SELECT * FROM Episode WHERE id_anime = ?";
             PreparedStatement st = dataBase.prepareStatement(sql);
+            st.setObject(1, id_anime);
             ResultSet res = st.executeQuery();
 
             while (res.next()) {
@@ -108,8 +110,9 @@ public class operationsService {
     public List<Chapter> getChapter(int id_manga) {
         List<Chapter> data = new ArrayList<Chapter>();
         try {
-            String sql = "SELECT * FROM chapter WHERE id_manga = " + String.valueOf(id_manga);
+            String sql = "SELECT * FROM chapter WHERE id_manga = ?";
             PreparedStatement st = dataBase.prepareStatement(sql);
+            st.setObject(1, id_manga);
             ResultSet res = st.executeQuery();
 
             while (res.next()) {
@@ -126,8 +129,9 @@ public class operationsService {
     public List<Volume> getVolumes(int id_novel) {
         List<Volume> data = new ArrayList<Volume>();
         try {
-            String sql = "SELECT * FROM Volume WHERE id_novel = " + String.valueOf(id_novel);
+            String sql = "SELECT * FROM Volume WHERE id_novel = ?";
             PreparedStatement st = dataBase.prepareStatement(sql);
+            st.setObject(1, id_novel);
             ResultSet res = st.executeQuery();
 
             while (res.next()) {
@@ -142,11 +146,11 @@ public class operationsService {
     }
 
     public Review getReview(int id_user, int id_media) {
-        String sql = "SELECT * FROM review WHERE id_user = " + String.valueOf(id_user) +
-                " AND id_media = " + String.valueOf(id_media);
-
         try {
+            String sql = "SELECT * FROM review WHERE id_user = ? AND id_media = ?";
             PreparedStatement st = dataBase.prepareStatement(sql);
+            st.setObject(1, id_user);
+            st.setObject(2, id_media);
             ResultSet res = st.executeQuery();
 
             if(res.next()) {
@@ -163,9 +167,10 @@ public class operationsService {
     public Double getRating(Media md) {
         try {
             String sql = "SELECT NVL(AVG(rating), 1)" +
-                          "FROM REVIEW WHERE id_media = " + String.valueOf(md.getId());
+                          "FROM REVIEW WHERE id_media = ?";
 
             PreparedStatement st = dataBase.prepareStatement(sql);
+            st.setObject(1, md.getId());
             ResultSet res = st.executeQuery();
 
             if(res.next()) {
@@ -189,8 +194,9 @@ public class operationsService {
     public List<Review> getReviewList(int id_user) {
         List<Review> data = new ArrayList<Review>();
         try {
-            String sql = "SELECT * FROM Review WHERE id_user = " + String.valueOf(id_user);
+            String sql = "SELECT * FROM Review WHERE id_user = ?";
             PreparedStatement st = dataBase.prepareStatement(sql);
+            st.setObject(1, id_user);
             ResultSet res = st.executeQuery();
 
             while (res.next()) {
@@ -207,8 +213,9 @@ public class operationsService {
     public List<WatchList> getWatchList(int id_user) {
         List<WatchList> data = new ArrayList<WatchList>();
         try {
-            String sql = "SELECT * FROM WatchList WHERE id_user = " + String.valueOf(id_user);
+            String sql = "SELECT * FROM WatchList WHERE id_user = ?";
             PreparedStatement st = dataBase.prepareStatement(sql);
+            st.setObject(1, id_user);
             ResultSet res = st.executeQuery();
 
             while (res.next()) {
@@ -223,10 +230,11 @@ public class operationsService {
     }
 
     public WatchList getWatchListItem(int id_user, int id_media) {
-        String sql = "SELECT * FROM watchlist WHERE id_user = " + String.valueOf(id_user) +
-                " AND id_media = " + String.valueOf(id_media);
         try {
+            String sql = "SELECT * FROM watchlist WHERE id_user = ? AND id_media = ?";
             PreparedStatement st = dataBase.prepareStatement(sql);
+            st.setObject(1, id_user);
+            st.setObject(2, id_media);
             ResultSet res = st.executeQuery();
 
             if(res.next()) {

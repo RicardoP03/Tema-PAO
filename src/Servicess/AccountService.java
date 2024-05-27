@@ -29,8 +29,9 @@ public class AccountService {
 
     public ResultSet getByName(String name) {
         try {
-            String sql = "SELECT id, name, password FROM Account WHERE name =" + "\'" + name + "\'";
+            String sql = "SELECT * FROM Account WHERE name = ?";
             PreparedStatement st = dataBase.prepareStatement(sql);
+            st.setObject(1, name);
             ResultSet res = st.executeQuery();
             return  res;
         }
